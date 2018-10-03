@@ -109,14 +109,20 @@ def download_list(text_file):
 def download_single(raw_song, number=None):
     """ Logic behind downloading a song. """
 
-    if internals.is_youtube(raw_song):
-        log.debug('Input song is a YouTube URL')
-        content = youtube_tools.go_pafy(raw_song, meta_tags=None)
-        raw_song = slugify(content.title).replace('-', ' ')
-        meta_tags = spotify_tools.generate_metadata(raw_song)
-    else:
-        meta_tags = spotify_tools.generate_metadata(raw_song)
-        content = youtube_tools.go_pafy(raw_song, meta_tags)
+    try:
+        if internals.is_youtube(raw_song):
+            log.debug('Input song is a YouTube URL')
+            content = youtube_tools.go_pafy(raw_song, meta_tags=None)
+            raw_song = slugify(content.title).replace('-', ' ')
+            meta_tags = spotify_tools.generate_metadata(raw_song)
+        else:
+            meta_tags = spotify_tools.generate_metadata(raw_song)
+            content = youtube_tools.go_pafy(raw_song, meta_tags)
+
+    # Pafy throws an IOError if the video could not be read
+    except IOError as e:
+        log.error('Error fetching youtube download: %s', e)
+        raise e
 
     if content is None:
         log.debug('Found no matching video')
@@ -130,6 +136,8 @@ def download_single(raw_song, number=None):
     # otherwise "[artist] - [song]"
     youtube_title = youtube_tools.get_youtube_title(content, number)
     log.info('{} ({})'.format(youtube_title, content.watchv_url))
+
+    hide_progress = log.level > 10 or const.args.hide_progress
 
     # generate file name of the song to download
     songname = content.title
@@ -154,10 +162,12 @@ def download_single(raw_song, number=None):
         os.makedirs(songpath, exist_ok=True)
         input_song = songname + const.args.input_ext
         output_song = songname + const.args.output_ext
-        if youtube_tools.download_song(input_song, content):
+        if youtube_tools.download_song(input_song, content, quiet=hide_progress):
+            print('')
             try:
                 convert.song(input_song, output_song, const.args.folder,
-                             avconv=const.args.avconv, trim_silence=const.args.trim_silence)
+                             avconv=const.args.avconv, trim_silence=const.args.trim_silence,
+                             hide_progress=hide_progress)
             except FileNotFoundError:
                 encoder = 'avconv' if const.args.avconv else 'ffmpeg'
                 log.warning('Could not find {0}, skipping conversion'.format(encoder))

@@ -65,6 +65,7 @@ def generate_metadata(raw_song):
                         meta_tags['artists'][0]['name'],
                         meta_tags['name'])
     except lyricwikia.LyricsNotFound:
+        log.warn('Lyrics not found for %s - %s', meta_tags['artists'][0]['name'], meta_tags['name'])
         meta_tags['lyrics'] = None
 
     # Some sugar
