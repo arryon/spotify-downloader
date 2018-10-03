@@ -1,9 +1,36 @@
-from spotdl import internals
-
 import sys
 import os
 import subprocess
+
+from spotdl import internals
+
 import pytest
+
+
+DUPLICATE_TRACKS_TEST_TABLE = [
+    (('https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      'https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ'),
+     ('https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',)),
+
+    (('https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      '',
+      'https://open.spotify.com/track/3SipFlNddvL0XNZRLXvdZD'),
+     ('https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      'https://open.spotify.com/track/3SipFlNddvL0XNZRLXvdZD')),
+
+    (('ncs fade',
+      'https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      '',
+      'ncs fade'),
+     ('ncs fade',
+      'https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ')),
+
+    (('ncs spectre ',
+      '  https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      ''),
+     ('ncs spectre',
+      'https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ'))
+]
 
 
 def test_default_music_directory():
@@ -80,3 +107,13 @@ class TestGetSeconds:
             internals.get_sec('10*05')
         with pytest.raises(ValueError):
             internals.get_sec('02,28,46')
+
+
+@pytest.mark.parametrize("duplicates, expected", DUPLICATE_TRACKS_TEST_TABLE)
+def test_get_unique_tracks(tmpdir, duplicates, expected):
+    file_path = os.path.join(str(tmpdir), 'test_duplicates.txt')
+    with open(file_path, 'w') as f:
+        f.write('\n'.join(duplicates))
+
+    unique_tracks = internals.get_unique_tracks(file_path)
+    assert tuple(unique_tracks) == expected
