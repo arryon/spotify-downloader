@@ -8,23 +8,22 @@ import spotdl
 setup(
     # 'spotify-downloader' was already taken :/
     name='spotdl',
-    py_modules=['spotdl'],
     # Tests are included automatically:
     # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute
     packages=['spotdl'],
     version=spotdl.__version__,
     install_requires=[
         'pathlib >= 1.0.1',
-        'youtube_dl >= 2017.9.8',
+        'youtube_dl >= 2017.9.26',
         'pafy >= 0.5.3.1',
         'spotipy >= 2.4.4',
-        'mutagen >= 1.37',
-        'beautifulsoup4 >= 4.6.0',
+        'mutagen >= 1.41.1',
+        'beautifulsoup4 >= 4.6.3',
         'unicode-slugify >= 0.1.3',
         'titlecase >= 0.10.0',
         'logzero >= 1.3.1',
         'lyricwikia >= 0.1.8',
-        'PyYAML >= 3.12',
+        'PyYAML >= 3.13',
         'appdirs >= 1.4.3'
     ],
     description='Download songs from YouTube using Spotify song URLs or playlists with albumart and meta-tags.',
@@ -35,7 +34,7 @@ setup(
     license='MIT',
     python_requires='>=3.4',
     url='https://github.com/ritiek/spotify-downloader',
-    download_url='https://pypi.org/project/spotify-downloader/',
+    download_url='https://pypi.org/project/spotdl/',
     keywords=['spotify', 'downloader', 'download', 'music', 'youtube', 'mp3', 'album', 'metadata'],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -46,6 +45,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Multimedia',
         'Topic :: Multimedia :: Sound/Audio',
